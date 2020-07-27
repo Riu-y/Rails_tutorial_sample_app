@@ -21,12 +21,21 @@ class User < ApplicationRecord
   end
 
   def remember
-  	self.remember_token = User.new_token
-  	update_attribute(:remembar_digest, User.digest(remember_token))
+    self.remember_token = User.new_token
+    update_attribute(:remember_digest, User.digest(remember_token))
   end
-end
 
+  class << self
+    # 渡された文字列のハッシュ値を返す
+    def digest(string)
+      cost = ActiveModel::SecurePassword.min_cost ? BCrypt::Engine::MIN_COST :
+                                                    BCrypt::Engine.cost
+      BCrypt::Password.create(string, cost: cost)
+    end
 
-
-
+    # ランダムなトークンを返す
+    def new_token
+      SecureRandom.urlsafe_base64
+    end
+  end
 
